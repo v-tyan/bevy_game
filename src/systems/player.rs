@@ -25,7 +25,7 @@ use bevy::{
 };
 
 pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let player_image: Handle<Image> = asset_server.load("misha.png");
+    let player_image: Handle<Image> = asset_server.load("apelsin.png");
     commands.spawn((
         PlayerBundle {
             marker: Player,
