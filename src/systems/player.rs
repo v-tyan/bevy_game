@@ -20,9 +20,12 @@ use bevy::{
         bounding::{Aabb2d, BoundingCircle, IntersectsVolume},
     },
     sprite::Sprite,
+    state::state::NextState,
     time::Time,
     transform::components::Transform,
 };
+
+use super::ui::AppState;
 
 pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
     let player_image: Handle<Image> = asset_server.load("apelsin.png");
@@ -73,6 +76,7 @@ pub fn player_enemy_collision(
     player_query: Query<(Entity, &Transform), With<Player>>,
     enemy_query: Query<&Transform, With<Enemy>>,
     mut game_state: ResMut<GameState>,
+    mut app_state: ResMut<NextState<AppState>>,
 ) {
     if let Ok((player_entity, player_transform)) = player_query.single() {
         for enemy_transform in enemy_query {
@@ -88,6 +92,7 @@ pub fn player_enemy_collision(
                 info!("player_enemy_collision");
                 commands.entity(player_entity).despawn();
                 game_state.game_over = true;
+                app_state.set(AppState::GameOver);
             }
         }
     }

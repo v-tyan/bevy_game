@@ -11,7 +11,14 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .init_state::<AppState>()
         .add_systems(OnEnter(AppState::Menu), menu_system)
-        .add_systems(Update, start_game_button.run_if(in_state(AppState::Menu)))
+        .add_systems(OnEnter(AppState::GameOver), game_over)
+        .add_systems(
+            Update,
+            (
+                start_game_button.run_if(in_state(AppState::Menu)),
+                start_game_button.run_if(in_state(AppState::GameOver)),
+            ),
+        )
         .add_systems(OnEnter(AppState::InGame), (setup, setup_ui))
         .add_systems(
             Update,

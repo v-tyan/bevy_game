@@ -15,7 +15,10 @@ use bevy::{
     ui::{AlignItems, JustifyContent, Node, TextShadow, Val, widget::Text},
 };
 
-use crate::core::resources::GameState;
+use crate::core::{
+    components::{Enemy, Projectile},
+    resources::GameState,
+};
 
 #[derive(Component)]
 pub struct ScoreText;
@@ -94,4 +97,28 @@ pub fn start_game_button(
             commands.entity(menu_text).despawn();
         }
     }
+}
+
+pub fn game_over(mut commands: Commands, query: Query<Entity, With<Enemy>>) {
+    for entity in query {
+        commands.entity(entity).despawn();
+    }
+    commands.spawn((
+        Text::new("GAME OVER\nPress ENTER"),
+        TextFont {
+            font_size: 60.0,
+            ..Default::default()
+        },
+        TextShadow::default(),
+        TextLayout::new_with_justify(JustifyText::Center),
+        Node {
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
+            align_items: AlignItems::Center,
+            justify_content: JustifyContent::Center,
+            ..Default::default()
+        },
+        TextColor(WHITE.into()),
+        MenuText,
+    ));
 }
