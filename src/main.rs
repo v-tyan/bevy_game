@@ -4,16 +4,15 @@ mod systems;
 use core::resources::{EnemySpawnTimer, GameState};
 
 use bevy::prelude::*;
-use systems::{
-    enemy::{move_enemies, spawn_enemy},
-    player::{move_player, player_enemy_collision, spawn_player},
-    projectile::{move_projectiles, projectile_enemy_collision, shoot_projectile},
-};
+use systems::{enemy::*, player::*, projectile::*, ui::*};
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_systems(Startup, setup)
+        .init_state::<AppState>()
+        .add_systems(OnEnter(AppState::Menu), menu_system)
+        .add_systems(Update, start_game_button.run_if(in_state(AppState::Menu)))
+        .add_systems(OnEnter(AppState::InGame), (setup, setup_ui))
         .add_systems(
             Update,
             (
@@ -24,13 +23,14 @@ fn main() {
                 move_projectiles,
                 projectile_enemy_collision,
                 player_enemy_collision,
-            ),
+                display_score,
+            )
+                .run_if(in_state(AppState::InGame)),
         )
         .run();
 }
 
-fn setup(mut commands: Commands) {
-    commands.spawn(Camera2d);
+fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.insert_resource(EnemySpawnTimer(Timer::from_seconds(
         0.5,
         TimerMode::Repeating,
@@ -39,5 +39,5 @@ fn setup(mut commands: Commands) {
         game_over: false,
         score: 0,
     });
-    spawn_player(commands);
+    spawn_player(commands, asset_server);
 }

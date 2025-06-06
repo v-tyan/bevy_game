@@ -3,7 +3,7 @@ use bevy::{
     ecs::{
         entity::Entity,
         query::With,
-        system::{Commands, Query, Res},
+        system::{Commands, Query, Res, ResMut},
     },
     input::{ButtonInput, mouse::MouseButton},
     math::{
@@ -17,7 +17,10 @@ use bevy::{
     window::{PrimaryWindow, Window},
 };
 
-use crate::core::components::{Direction, Enemy, Player, Projectile, ProjectileBundle, Speed};
+use crate::core::{
+    components::{Direction, Enemy, Player, Projectile, ProjectileBundle, Speed},
+    resources::GameState,
+};
 
 const PROJECTILE_SPEED: f32 = 1500.0;
 const PROJECTILE_COLOR: Color = Color::srgb(0.0, 0.0, 0.5);
@@ -78,6 +81,7 @@ pub fn projectile_enemy_collision(
     mut commands: Commands,
     projectile_query: Query<(Entity, &Transform), With<Projectile>>,
     enemy_query: Query<(Entity, &Transform), With<Enemy>>,
+    mut game_state: ResMut<GameState>,
 ) {
     for (projectile_entity, projectile_transform) in projectile_query {
         for (enemy_entity, enemy_transform) in enemy_query {
@@ -92,6 +96,7 @@ pub fn projectile_enemy_collision(
             if projectile_bounds.intersects(&enemy_bounds) {
                 commands.entity(projectile_entity).despawn();
                 commands.entity(enemy_entity).despawn();
+                game_state.score += 25;
             }
         }
     }

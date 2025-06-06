@@ -5,12 +5,14 @@ const PLAYER_COLOR: Color = Color::srgb(0.0, 0.8, 0.0);
 const PLAYER_SIZE: Vec2 = Vec2::new(50.0, 30.0);
 
 use bevy::{
+    asset::{AssetServer, Handle},
     color::Color,
     ecs::{
         entity::Entity,
         query::With,
         system::{Commands, Query, Res, ResMut},
     },
+    image::Image,
     input::{ButtonInput, keyboard::KeyCode},
     log::info,
     math::{
@@ -22,12 +24,16 @@ use bevy::{
     transform::components::Transform,
 };
 
-pub fn spawn_player(mut commands: Commands) {
+pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let player_image: Handle<Image> = asset_server.load("misha.png");
     commands.spawn((
         PlayerBundle {
             marker: Player,
             speed: Speed(PLAYER_SPEED),
-            sprite: Sprite::from_color(PLAYER_COLOR, PLAYER_SIZE),
+            sprite: Sprite {
+                image: player_image.clone(),
+                ..Default::default()
+            },
         },
         Transform::from_xyz(0.0, -200.0, 0.0),
     ));
@@ -80,6 +86,7 @@ pub fn player_enemy_collision(
 
             if player_bounds.intersects(&enemy_bounds) {
                 info!("player_enemy_collision");
+                commands.entity(player_entity).despawn();
                 game_state.game_over = true;
             }
         }

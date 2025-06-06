@@ -1,4 +1,5 @@
 use bevy::{
+    asset::AssetServer,
     color::Color,
     ecs::{
         query::With,
@@ -19,13 +20,21 @@ const ENEMY_SPEED: f32 = 150.0;
 const ENEMY_COLOR: Color = Color::srgb(0.8, 0.0, 0.0);
 const ENEMY_SIZE: Vec2 = Vec2::new(15.0, 15.0);
 
-pub fn spawn_enemy(mut commands: Commands, time: Res<Time>, mut timer: ResMut<EnemySpawnTimer>) {
+pub fn spawn_enemy(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut timer: ResMut<EnemySpawnTimer>,
+    asset_server: Res<AssetServer>,
+) {
     if timer.0.tick(time.delta()).just_finished() {
         commands.spawn((
             EnemyBundle {
                 marker: Enemy,
                 speed: Speed(ENEMY_SPEED),
-                sprite: Sprite::from_color(ENEMY_COLOR, ENEMY_SIZE),
+                sprite: Sprite {
+                    image: asset_server.load("plus_twenty_five.png").clone(),
+                    ..Default::default()
+                },
             },
             Transform::from_xyz((rand::random::<f32>() - 0.5) * 800.0, 1000.0, 0.0),
         ));
